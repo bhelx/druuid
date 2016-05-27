@@ -60,7 +60,6 @@ defmodule Druuid do
   1451606400
 
   ```
-
   """
   @spec epoch_offset(Tuple) :: integer
   def epoch_offset(offset_datetime) do
@@ -70,7 +69,7 @@ defmodule Druuid do
   end
 
   @doc """
-  This function determinstically generates the druuid id from the variables given.
+  Determinstically generates the druuid id from the variables given.
   Unless you have a specific reason to override one of these, you probably want to use
   the `Druuid.gen/1` function.
 
@@ -97,6 +96,48 @@ defmodule Druuid do
     id ||| rem(rand, v)
   end
 
+  @doc """
+  Encodes a druuid id as a base 36 string.
+
+  ## Parameters
+
+    - `druuid` integer druuid id
+
+  ## Examples
+
+  ```elixir
+  iex> Druuid.encode(12283551831556210035)
+  "2lborpt3qr983"
+
+  ```
+  """
+  @spec encode(integer) :: String.t
+  def encode(druuid) do
+    druuid
+    |> Integer.to_string(36)
+    |> String.downcase
+  end
+
+  @doc """
+  Decodes a base 36 string to a druuid integer.
+
+  ## Parameters
+
+    - `druuid_str` String base 36 representation of the druuid
+
+  ## Examples
+
+  ```elixir
+  iex> Druuid.decode("2lborpt3qr983")
+  12283551831556210035
+
+  ```
+  """
+  @spec decode(String.t) :: integer
+  def decode(druuid_str) do
+    druuid_str
+    |> String.to_integer(36)
+  end
   # Returns a uniform random number b/w 0.0 and 1.0.
   defp uniform do
     :random.uniform
