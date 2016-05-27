@@ -1,0 +1,111 @@
+defmodule Druuid do
+  @moduledoc """
+  Druuid is used to generate datetime relative uuids that fit into a
+  postgres bigint. It does this by reserving the higher order bits for
+  the datetime and the lower order bits for some entropy.
+
+  ## Getting Started
+
+  The primary function is `Druuid.gen/1`. This will return a new uuid
+  based on the 1970 UNIX epoch:
+
+  ```elixir
+  Druuid.gen()
+  #=> 12283551831556210035
+  ```
+
+  You may wish to choose an epoch offset to make this number smaller if
+  you don't need to worry about dates before a certain point. `Druuid.epoch_offset/1`
+  allows you to pass in an erlang datetime tuple as the offset point and `Druuid.gen/1`
+  can take this as an optional argument. For example, consider using Jan 1st, 2016 at midnight
+  as an anchor point:
+
+  ```elixir
+  {{2016,1,1},{0,0,0}}
+  |> Druid.epoch_offset
+  |> Druuid.gen
+  #=> 106596357117955988
+  ```
+  """
+
+  use Bitwise
+
+  unix_epoch = {{1970, 1, 1}, {0, 0, 0}}
+  @epoch :calendar.datetime_to_gregorian_seconds(unix_epoch)
+
+  @doc """
+  Generates a druuid id given an epoch_offset (optional).
+
+  ## Parameters
+
+    - `epoch_offset` (optional) integer value that offsets the 1970 epoch. Defaults to `0`.
+
+  """
+  @spec gen(integer) :: integer
+  def gen(epoch_offset \\ 0) do
+    gen_from_values(epoch_offset, uniform, timestamp)
+  end
+
+  @doc """
+  Calculates an epoch offset from the given datetime.
+
+  ## Parameters
+
+    - `offset_datetime` erlang datetime tuple from which to calculate the offset
+
+  ## Examples
+
+  ```elixir
+  iex> Druuid.epoch_offset({{2016, 1, 1}, {0, 0, 0}})
+  1451606400
+
+  ```
+
+  """
+  @spec epoch_offset(Tuple) :: integer
+  def epoch_offset(offset_datetime) do
+    offset_datetime
+    |> :calendar.datetime_to_gregorian_seconds
+    |> -(@epoch)
+  end
+
+  @doc """
+  This function determinstically generates the druuid id from the variables given.
+  Unless you have a specific reason to override one of these, you probably want to use
+  the `Druuid.gen/1` function.
+
+  ## Parameters
+
+    - `epoch_offset` integer value that offsets the 1970 UNIX epoch. Defaults to `0`.
+    - `rand` float value representing a random sample b/w 0 and 1 from a uniform distribution.
+    - `ts` integer timestamp representing the current time in seconds from the epoch.
+
+  ## Examples
+
+  ```elixir
+  iex> Druuid.gen_from_values(0, 0.0, 1)
+  8388608000
+
+  ```
+  """
+  @spec gen_from_values(integer, float, integer) :: integer
+  def gen_from_values(epoch_offset, rand, ts) do
+    ms = ((ts - epoch_offset) * 1.0e+3) |> round
+    rand = rand * 1.0e+16 |> round
+    id = ms <<< (64 - 41)
+    v = :math.pow(2, (64 - 41)) |> round
+    id ||| rem(rand, v)
+  end
+
+  # Returns a uniform random number b/w 0.0 and 1.0.
+  defp uniform do
+    :random.uniform
+  end
+
+  # Returns an integer representing the seconds since the UNIX epoch.
+  defp timestamp do
+    :calendar.universal_time
+    |> :calendar.datetime_to_gregorian_seconds
+    |> -(@epoch)
+  end
+end
