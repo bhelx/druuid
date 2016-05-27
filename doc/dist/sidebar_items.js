@@ -1,1 +1,0 @@
-sidebarNodes={"exceptions":[],"extras":[{"id":"api-reference","title":"API Reference","headers":[]}],"modules":[{"id":"Druuid","title":"Druuid","functions":[{"id":"epoch_offset/1","anchor":"epoch_offset/1"},{"id":"gen/1","anchor":"gen/1"},{"id":"gen_from_values/3","anchor":"gen_from_values/3"}]}],"protocols":[]}

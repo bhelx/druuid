@@ -26,6 +26,16 @@ defmodule Druuid do
   |> Druuid.gen
   #=> 106596357117955988
   ```
+
+  If you wish to pass this along to other systems (such as using as an id in a RESTful url),
+  you might want to consider using the `Druuid.encode/1` and the `Druuid.decode/1` functions.
+  `Druuid.encode/1` converts to a base 36 string and `Druuid.decode/1` converts back to an integer.
+
+  ```elixir
+  Druuid.gen()
+  |> Druuid.encode
+  #=> "2lbpkins91z90"
+  ```
   """
 
   use Bitwise
