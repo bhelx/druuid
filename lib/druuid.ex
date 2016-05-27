@@ -148,6 +148,7 @@ defmodule Druuid do
     druuid_str
     |> String.to_integer(36)
   end
+
   # Returns a uniform random number b/w 0.0 and 1.0.
   defp uniform do
     :random.uniform
