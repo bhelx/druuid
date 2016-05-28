@@ -24,7 +24,7 @@ defmodule DruuidTest do
     assert(id < Druuid.gen_from_values(0, :random.uniform(), timestamp + 1))
   end
 
-  test "should be able to convert to/from base 36 strings" do
+  test "convert to/from base 36 strings" do
     timestamp = :calendar.universal_time |> :calendar.datetime_to_gregorian_seconds
     id = Druuid.gen_from_values(0, :random.uniform(), timestamp)
 
@@ -34,5 +34,13 @@ defmodule DruuidTest do
       |> Druuid.decode
 
     assert id == output
+  end
+
+  test "convert a druuid back to datetime" do
+    original_dt = {{2016, 5, 27}, {20, 36, 20}}
+    offset = Druuid.epoch_offset({{2016,1,1},{0,0,0}})
+    druuid = 107164299427954035
+
+    assert Druuid.datetime(druuid, offset) == original_dt
   end
 end

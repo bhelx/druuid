@@ -36,6 +36,20 @@ defmodule Druuid do
   |> Druuid.encode
   #=> "2lbpkins91z90"
   ```
+
+  Druuid also allows you to extract the datetime back out of the id with the `Druuid.datetime/2` function.
+  If the id was generated using an offset, you'll need to provide the offset used as the second argument.
+  The result is an erlang datetime tuple.
+
+  ```elixir
+  offset = Druuid.epoch_offset({{2016,1,1},{0,0,0}})
+
+  "taqi2f417zk"
+  |> Druuid.decode
+  |> Druuid.datetime(offset)
+  # => {{2016, 5, 27}, {19, 6, 15}}
+  ```
+
   """
 
   use Bitwise
@@ -54,6 +68,33 @@ defmodule Druuid do
   @spec gen(integer) :: integer
   def gen(epoch_offset \\ 0) do
     gen_from_values(epoch_offset, uniform, timestamp)
+  end
+
+  @doc """
+  Extracts the datetime from the druuid id given an epoch_offset (optional).
+  If you used an offset to generate the druuid, you must provide the same offset
+  to get the datetime back out.
+
+  ## Parameters
+
+    - `druuid`  integer druuid id
+    - `epoch_offset` (optional) integer value that offsets the 1970 epoch. Defaults to `0`.
+
+  ## Examples:
+
+  ```elixir
+  iex> offset = Druuid.epoch_offset({{2016,1,1},{0,0,0}})
+  iex> Druuid.datetime(107044006789234035, offset)
+  {{2016, 5, 27}, {16, 37, 20}}
+
+  ```
+
+  """
+  @spec datetime(integer, integer) :: Tuple
+  def datetime(druuid, epoch_offset \\ 0) do
+    ms = druuid >>> (64 - 41)
+    seconds = round(ms / 1.0e+3) + epoch_offset + @epoch
+    :calendar.gregorian_seconds_to_datetime(seconds)
   end
 
   @doc """
