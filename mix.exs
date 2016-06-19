@@ -9,6 +9,7 @@ defmodule Druuid.Mixfile do
      start_permanent: Mix.env == :prod,
      description: description,
      package: package,
+     docs: [main: "Druuid"],
      deps: deps]
   end
 
