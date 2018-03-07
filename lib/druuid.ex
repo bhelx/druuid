@@ -67,7 +67,7 @@ defmodule Druuid do
   """
   @spec gen(integer) :: integer
   def gen(epoch_offset \\ 0) do
-    gen_from_values(epoch_offset, uniform, timestamp)
+    gen_from_values(epoch_offset, uniform(), timestamp())
   end
 
   @doc """
@@ -112,11 +112,9 @@ defmodule Druuid do
 
   ```
   """
-  @spec epoch_offset(Tuple) :: integer
+  @spec epoch_offset(Tuple) :: integer  
   def epoch_offset(offset_datetime) do
-    offset_datetime
-    |> :calendar.datetime_to_gregorian_seconds
-    |> -(@epoch)
+    (offset_datetime |> :calendar.datetime_to_gregorian_seconds) - @epoch
   end
 
   @doc """
@@ -192,13 +190,12 @@ defmodule Druuid do
 
   # Returns a uniform random number b/w 0.0 and 1.0.
   defp uniform do
-    :random.uniform
+    :rand.uniform
   end
 
-  # Returns an integer representing the seconds since the UNIX epoch.
+  # Returns an integer representing the seconds since the UNIX epoch.  
   defp timestamp do
-    :calendar.universal_time
-    |> :calendar.datetime_to_gregorian_seconds
-    |> -(@epoch)
+    (:calendar.universal_time |> :calendar.datetime_to_gregorian_seconds) - @epoch
   end
+  
 end
